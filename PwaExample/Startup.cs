@@ -42,7 +42,10 @@ namespace PwaExample
                 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
             .AddCookie(options =>
-                options.AccessDeniedPath = "/Authorization/AccessDenied"
+            {
+                options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+                options.AccessDeniedPath = "/Authorization/AccessDenied";
+            }
             ).AddOpenIdConnect(options =>
             {
                 options.Authority = "https://avidp4.com";
@@ -68,6 +71,7 @@ namespace PwaExample
                 };
 
             });
+            //Only for ios redirection loop bug
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -94,8 +98,9 @@ namespace PwaExample
 
             var cookiePolicyOptions = new CookiePolicyOptions
             {
-                MinimumSameSitePolicy = SameSiteMode.Strict
+                MinimumSameSitePolicy = SameSiteMode.None
             };
+
 
             app.UseCookiePolicy(cookiePolicyOptions);
 
