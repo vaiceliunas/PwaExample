@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="manifest" href="~/manifest1.0.json">
+    <link rel="manifest" href="~/manifest.webmanifest" />
     <link rel="apple-touch-icon" sizes="512x512" href="~/images/512x512.png" />
     <title>@ViewData["Title"] - PwaExample</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -26,16 +27,11 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li>
-                            <a class="nav-link text-dark" data-toggle="modal" data-target="#installModal">
-                                Info
-                            </a>
-                        </li>
                         @if (User.Identity.IsAuthenticated)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
-                            </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Logout">Logout</a>
+                        </li>
                         }
                     </ul>
                 </div>
@@ -54,31 +50,12 @@
         </div>
     </footer>
 
-    <div class="modal" id="installModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-light">
-                    <span class="decorator-md-b">Info</span>
-                    <div>
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    </div>
-                </div>
-                <div class="modal-body">
-                    <div id="installContainer">
-                        <div id="butInstall" class="hidden">
-                            <button class="btn btn-dark">
-                                Add to homescreen
-                            </button>
-                        </div>
-                        <hr />
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script async src="https://cdn.jsdelivr.net/npm/pwacompat@2.0.6/pwacompat.min.js"
+            integrity="sha384-GOaSLecPIMCJksN83HLuYf9FToOiQ2Df0+0ntv7ey8zjUHESXhthwvq9hXAZTifA"
+            crossorigin="anonymous"></script>
+
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/pwa-installer1.0.js"></script>
     @await RenderSectionAsync("Scripts", required: false)

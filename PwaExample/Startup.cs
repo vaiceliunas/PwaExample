@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +31,7 @@ namespace PwaExample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddHttpContextAccessor();
 
             services.AddAuthentication(options =>
@@ -62,6 +63,7 @@ namespace PwaExample
                 options.ClaimActions.DeleteClaim("s_hash");
                 options.ClaimActions.DeleteClaim("auth_time");
                 options.Scope.Add("roles");
+                options.RemoteAuthenticationTimeout = TimeSpan.FromHours(25);
                 options.Scope.Add("offline_access");
                 options.ClaimActions.MapUniqueJsonKey(JwtClaimTypes.Role, "role");
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -70,8 +72,22 @@ namespace PwaExample
                     RoleClaimType = JwtClaimTypes.Role
                 };
 
+                options.Events.OnRemoteFailure  = RedirectContext =>
+                {
+                    RedirectContext.HttpContext.SignOutAsync("Cookies");
+                    RedirectContext.HttpContext.SignOutAsync(OpenIdConnectDefaults.AuthenticationScheme);
+                    RedirectContext.HandleResponse();
+                    RedirectContext.Response.Redirect("/");
+                    return Task.FromResult(0);
+                };
+
             });
-            //Only for ios redirection loop bug
+
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -83,7 +99,8 @@ namespace PwaExample
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                //app.UseExceptionHandler("/Home/Error");
+                app.UseDeveloperExceptionPage();
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
@@ -92,7 +109,6 @@ namespace PwaExample
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -108,7 +124,7 @@ namespace PwaExample
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Login}/{id?}");
             });
         }
     }

@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 
 namespace PwaExample.Controllers
 {
-    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -22,13 +21,25 @@ namespace PwaExample.Controllers
             _logger = logger;
         }
 
+        [Authorize]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Index()
         {
             return View();
         }
-
+        [Authorize]
         public IActionResult Privacy()
         {
+            return View();
+        }
+
+        public IActionResult Login()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
             return View();
         }
 
